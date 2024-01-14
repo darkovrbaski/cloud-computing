@@ -2,18 +2,57 @@ version: "3.8"
 name: cc-libraries
 
 services:
-  lib_cn:
+  lib-cn:
     container_name: "lib_cn"
-    # image: darkovrbaski/lib_cn:latest
-    build:
-      context: ../central-library
-      dockerfile: Dockerfile
+    image: darkovrbaski/central-library:latest
     environment:
       - POSTGRES_DB_HOST=cndb
     ports:
       - "9000:8080"
     depends_on:
       cndb:
+        condition: service_healthy
+    restart: always
+    networks:
+      - lib-network
+
+  lib-ns:
+    container_name: "lib_ns"
+    image: darkovrbaski/branch-library:latest
+    environment:
+      - POSTGRES_DB_HOST=nsdb
+    ports:
+      - "9010:8080"
+    depends_on:
+      nsdb:
+        condition: service_healthy
+    restart: always
+    networks:
+      - lib-network
+
+  lib-bg:
+    container_name: "lib_bg"
+    image: darkovrbaski/branch-library:latest
+    environment:
+      - POSTGRES_DB_HOST=bgdb
+    ports:
+      - "9020:8080"
+    depends_on:
+      bgdb:
+        condition: service_healthy
+    restart: always
+    networks:
+      - lib-network
+
+  lib-ni:
+    container_name: "lib_ni"
+    image: darkovrbaski/branch-library:latest
+    environment:
+      - POSTGRES_DB_HOST=nidb
+    ports:
+      - "9030:8080"
+    depends_on:
+      nidb:
         condition: service_healthy
     restart: always
     networks:
@@ -30,8 +69,48 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - "5432:5432"
+    networks:
+      - lib-network
+
+  nsdb:
+    container_name: "nsdb"
+    image: postgres:alpine
+    environment:
+      POSTGRES_USERNAME: ${POSTGRES_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lib-network
+
+  bgdb:
+    container_name: "bgdb"
+    image: postgres:alpine
+    environment:
+      POSTGRES_USERNAME: ${POSTGRES_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lib-network
+
+  nidb:
+    container_name: "nidb"
+    image: postgres:alpine
+    environment:
+      POSTGRES_USERNAME: ${POSTGRES_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - lib-network
 

@@ -27,5 +27,8 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Build with Maven
+      - name: Build with Maven (central-library)
         run: mvn -B -DskipTests package -f central-library/pom.xml
+
+      - name: Build with Maven (branch-library)
+        run: mvn -B -DskipTests package -f branch-library/pom.xml
