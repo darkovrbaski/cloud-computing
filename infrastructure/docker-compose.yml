@@ -1,0 +1,40 @@
+version: "3.8"
+name: cc-libraries
+
+services:
+  lib_cn:
+    container_name: "lib_cn"
+    # image: darkovrbaski/lib_cn:latest
+    build:
+      context: ../central-library
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_DB_HOST=cndb
+    ports:
+      - "9000:8080"
+    depends_on:
+      cndb:
+        condition: service_healthy
+    restart: always
+    networks:
+      - lib-network
+
+  cndb:
+    container_name: "cndb"
+    image: postgres:alpine
+    environment:
+      POSTGRES_USERNAME: ${POSTGRES_DB_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - lib-network
+
+networks:
+  lib-network:
+    driver: bridge
