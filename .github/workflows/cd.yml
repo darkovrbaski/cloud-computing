@@ -1,0 +1,40 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  IMAGE_NAME: central-library
+
+jobs:
+  ci-backend:
+    name: CI
+    uses: darkovrbaski/cloud-computing/.github/workflows/ci-backend.yml@main
+    secrets: inherit
+
+  deploy_backend:
+    needs: [ci-backend]
+    runs-on: ubuntu-latest
+    name: Deploy Backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+
+      - name: Log into Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build & Push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
+        with:
+          context: ./central-library/
+          tags: ${{ secrets.DOCKERHUB_SERVER }}/${{ env.IMAGE_NAME }}:latest
+          push: true
