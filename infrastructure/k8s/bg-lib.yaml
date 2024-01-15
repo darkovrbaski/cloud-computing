@@ -28,7 +28,7 @@ spec:
             - name: POSTGRES_DB_PASSWORD
               value: "postgres"
             - name: CENTRAL_LIB_HOST
-              value: "ci-lib-service"
+              value: "cn-lib-service"
             - name: CENTRAL_LIB_PORT
               value: "9000"
           resources:

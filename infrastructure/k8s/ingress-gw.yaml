@@ -2,13 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-gw
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/$2"
 spec:
   ingressClassName: nginx
   rules:
-    - host: library.com
+    - host: localhost
       http:
         paths:
-          - path: "/cn"
+          - path: /cn(/|$)(.*)
             pathType: Prefix
             backend:
               service:
@@ -16,7 +18,7 @@ spec:
                 port:
                   number: 9000
 
-          - path: "/ns"
+          - path: "/()(.*)"
             pathType: Prefix
             backend:
               service:
@@ -24,18 +26,18 @@ spec:
                 port:
                   number: 9010
 
-          - path: "/bg"
+          - path: /bg(/|$)(.*)
             pathType: Prefix
             backend:
               service:
-                name: ns-lib-service
+                name: bg-lib-service
                 port:
                   number: 9020
 
-          - path: "/ni"
+          - path: /ni(/|$)(.*)
             pathType: Prefix
             backend:
               service:
-                name: ns-lib-service
+                name: ni-lib-service
                 port:
                   number: 9030
