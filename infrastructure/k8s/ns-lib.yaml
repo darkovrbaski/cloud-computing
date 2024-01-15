@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ns-lib
+  labels:
+    app: ns-lib
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ns-lib
+  template:
+    metadata:
+      labels:
+        app: ns-lib
+    spec:
+      containers:
+        - name: ns-lib
+          image: darkovrbaski/branch-library:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_DB_HOST
+              value: "localhost"
+            - name: POSTGRES_DB_USERNAME
+              value: "postgres"
+            - name: POSTGRES_DB_PASSWORD
+              value: "postgres"
+            - name: CENTRAL_LIB_HOST
+              value: "ci-lib-service"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+
+        - name: nsdb
+          image: postgres:alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USERNAME
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: ns-postgres-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ns-postgres-pv-claim
+  labels:
+    app: ns-lib
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ns-lib-service
+  labels:
+    app: ns-lib
+spec:
+  selector:
+    app: ns-lib
+  ports:
+    - name: http
+      port: 9010
+      targetPort: 8080
