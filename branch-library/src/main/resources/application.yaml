@@ -36,3 +36,4 @@ springdoc:
 
 central-lib:
   host: ${CENTRAL_LIB_HOST:lib-cn}
+  port: ${CENTRAL_LIB_PORT:8080}

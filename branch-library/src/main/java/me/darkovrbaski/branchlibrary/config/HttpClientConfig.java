@@ -16,10 +16,13 @@ public class HttpClientConfig {
   @Value("${central-lib.host}")
   String centralLibHost;
 
+  @Value("${central-lib.port}")
+  String centralLibPort;
+
   @Bean
   public RestClient centralHttpClient() {
     return RestClient.builder()
-        .baseUrl(String.format("http://%s:8080/central-library", centralLibHost))
+        .baseUrl(String.format("http://%s:%s/central-library", centralLibHost, centralLibPort))
         .build();
   }
 
