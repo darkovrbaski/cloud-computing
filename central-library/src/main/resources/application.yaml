@@ -10,7 +10,7 @@ spring:
     password: ${POSTGRES_DB_PASSWORD:postgres}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -21,7 +21,7 @@ spring:
     database: postgresql
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgresql
 
 logging:
