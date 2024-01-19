@@ -15,52 +15,53 @@ spec:
         app: ni-lib
     spec:
       containers:
-        - name: ni-lib
-          image: darkovrbaski/branch-library:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-          env:
-            - name: POSTGRES_DB_HOST
-              value: "localhost"
-            - name: POSTGRES_DB_USERNAME
-              value: "postgres"
-            - name: POSTGRES_DB_PASSWORD
-              value: "postgres"
-            - name: CENTRAL_LIB_HOST
-              value: "cn-lib-service"
-            - name: CENTRAL_LIB_PORT
-              value: "9000"
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "150m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-        - name: nsdb
-          image: postgres:alpine
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_USERNAME
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              value: "postgres"
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-      volumes:
+      - name: ni-lib
+        image: darkovrbaski/branch-library:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: POSTGRES_DB_HOST
+          value: localhost
+        - name: POSTGRES_DB_USERNAME
+          value: postgres
+        - name: POSTGRES_DB_PASSWORD
+          value: postgres
+        - name: CENTRAL_LIB_HOST
+          value: cn-lib-service
+        - name: CENTRAL_LIB_PORT
+          value: "9000"
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: 150m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+      - name: nsdb
+        image: postgres:alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USERNAME
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: 100m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        volumeMounts:
         - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: ni-postgres-pv-claim
+          mountPath: /var/lib/postgresql/data
+          subPath: ./ni-postgres-data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
 ---
 apiVersion: v1
 kind: Service
@@ -72,6 +73,6 @@ spec:
   selector:
     app: ni-lib
   ports:
-    - name: http
-      port: 9030
-      targetPort: 8080
+  - name: http
+    port: 9030
+    targetPort: 8080

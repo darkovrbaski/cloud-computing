@@ -15,48 +15,49 @@ spec:
         app: cn-lib
     spec:
       containers:
-        - name: cn-lib
-          image: darkovrbaski/central-library:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-          env:
-            - name: POSTGRES_DB_HOST
-              value: "localhost"
-            - name: POSTGRES_DB_USERNAME
-              value: "postgres"
-            - name: POSTGRES_DB_PASSWORD
-              value: "postgres"
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "150m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-        - name: cndb
-          image: postgres:alpine
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_USERNAME
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              value: "postgres"
-          resources:
-            requests:
-              memory: "300Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-      volumes:
+      - name: cn-lib
+        image: darkovrbaski/central-library:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: POSTGRES_DB_HOST
+          value: localhost
+        - name: POSTGRES_DB_USERNAME
+          value: postgres
+        - name: POSTGRES_DB_PASSWORD
+          value: postgres
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: 150m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+      - name: cndb
+        image: postgres:alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USERNAME
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: 100m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        volumeMounts:
         - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: cn-postgres-pv-claim
+          mountPath: /var/lib/postgresql/data
+          subPath: ./cn-postgres-data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
 ---
 apiVersion: v1
 kind: Service
@@ -69,7 +70,7 @@ spec:
   selector:
     app: cn-lib
   ports:
-    - name: http
-      protocol: TCP
-      port: 9000
-      targetPort: 8080
+  - name: http
+    protocol: TCP
+    port: 9000
+    targetPort: 8080
