@@ -5,9 +5,6 @@ metadata:
   labels:
     app: lib
 spec:
-  claimRef:
-    name: postgres-pv-claim
-    namespace: default
   capacity:
     storage: 1Gi
   hostPath:
@@ -33,3 +30,4 @@ spec:
   - ReadWriteOnce
   storageClassName: standard
   volumeMode: Filesystem
+  volumeName: postgres-pv
