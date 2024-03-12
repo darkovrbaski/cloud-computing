@@ -8,7 +8,7 @@ spec:
   capacity:
     storage: 1Gi
   hostPath:
-    path: /mnt/postgres-storage
+    path: /tmp/postgres-storage
     type: DirectoryOrCreate
   persistentVolumeReclaimPolicy: Delete
   accessModes:
